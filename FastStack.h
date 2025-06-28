@@ -45,6 +45,13 @@ public:
         return m_ptr == -1;
     }
 
+    void copy(int i) {
+        if ((i > 0) && (m_ptr > -1)) {
+            auto idx = m_ptr - (i-1);
+            m_stack[++m_ptr] = m_stack[idx];
+        }
+    }
+
 private:
     std::vector<PycRef<ASTNode>> m_stack;
     int m_ptr;
