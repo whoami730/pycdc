@@ -2478,8 +2478,23 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
         case Pyc::COPY_A:
             stack.copy(operand);
             break;
+        case Pyc::STORE_SLICE:
+            {
+                PycRef<ASTNode> end = stack.top();
+                stack.pop();
+                PycRef<ASTNode> start = stack.top();
+                stack.pop();
+                PycRef<ASTNode> dest = stack.top();
+                stack.pop();
+                PycRef<ASTNode> values = stack.top();
+                stack.pop();
+
+                curblock->append(new ASTStore(values, new ASTSubscr(dest, new ASTSlice(ASTSlice::SLICE3, start, end))));
+            }
+            break;
         default:
             fprintf(stderr, "Unsupported opcode: %s (%d)\n", Pyc::OpcodeName(opcode), opcode);
+            break; // Print all unsupported opcodes at once
             cleanBuild = false;
             return new ASTNodeList(defblock->nodes());
         }
