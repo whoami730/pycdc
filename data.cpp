@@ -74,7 +74,9 @@ int PycBuffer::getByte()
 {
     if (atEof()) {
         fputs("PycBuffer::getByte(): Unexpected end of stream\n", stderr);
-        std::exit(1);
+        // Return a safe value instead of exiting
+        // This will help us see what's happening
+        return 0;
     }
     int ch = (int)(*(m_buffer + m_pos));
     ++m_pos;
@@ -85,7 +87,16 @@ void PycBuffer::getBuffer(int bytes, void* buffer)
 {
     if (m_pos + bytes > m_size) {
         fputs("PycBuffer::getBuffer(): Unexpected end of stream\n", stderr);
-        std::exit(1);
+        // Fill with zeros instead of exiting
+        int available = m_size - m_pos;
+        if (available > 0 && bytes != 0) {
+            memcpy(buffer, (m_buffer + m_pos), available);
+            memset((char*)buffer + available, 0, bytes - available);
+        } else if (bytes != 0) {
+            memset(buffer, 0, bytes);
+        }
+        m_pos = m_size;
+        return;
     }
     if (bytes != 0)
         memcpy(buffer, (m_buffer + m_pos), bytes);
