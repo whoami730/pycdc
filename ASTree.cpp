@@ -130,8 +130,6 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                 && opcode != Pyc::POP_JUMP_IF_TRUE_A
                 && opcode != Pyc::POP_JUMP_FORWARD_IF_TRUE_A
                 && opcode != Pyc::POP_BLOCK) {
-            else_pop = false;
-
             PycRef<ASTBlock> prev = curblock;
             while (prev->end() < pos
                     && prev->blktype() != ASTBlock::BLK_MAIN) {
@@ -2480,7 +2478,6 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
         case Pyc::RESUME_A:
         case Pyc::INSTRUMENTED_RESUME_A:
             /* We just entirely ignore this / no-op */
-            break;
         case Pyc::CACHE:
             /* These "fake" opcodes are used as placeholders for optimizing
                certain opcodes in Python 3.11+.  Since we have no need for
@@ -2645,11 +2642,10 @@ static int cmp_prec(PycRef<ASTNode> parent, PycRef<ASTNode> child)
         if (parent.type() == ASTNode::NODE_BINARY) {
             PycRef<ASTBinary> binParent = parent.cast<ASTBinary>();
             if (binParent->right() == child) {
-                if (binParent->op() == ASTBinary::BIN_SUBTRACT &&
-                    binChild->op() == ASTBinary::BIN_ADD)
-                    return 1;
-                else if (binParent->op() == ASTBinary::BIN_DIVIDE &&
-                         binChild->op() == ASTBinary::BIN_MULTIPLY)
+                if ((binParent->op() == ASTBinary::BIN_SUBTRACT &&
+                     binChild->op() == ASTBinary::BIN_ADD) ||
+                    (binParent->op() == ASTBinary::BIN_DIVIDE &&
+                     binChild->op() == ASTBinary::BIN_MULTIPLY))
                     return 1;
             }
             return binChild->op() - binParent->op();
@@ -2663,6 +2659,9 @@ static int cmp_prec(PycRef<ASTNode> parent, PycRef<ASTNode> child)
         PycRef<ASTUnary> unChild = child.cast<ASTUnary>();
         if (parent.type() == ASTNode::NODE_BINARY) {
             PycRef<ASTBinary> binParent = parent.cast<ASTBinary>();
+
+            // NOLINTBEGIN(bugprone-branch-clone)f
+            // Not sure if reordering the branches could lead to some bugs
             if (binParent->op() == ASTBinary::BIN_LOG_AND ||
                 binParent->op() == ASTBinary::BIN_LOG_OR)
                 return -1;
@@ -2672,6 +2671,7 @@ static int cmp_prec(PycRef<ASTNode> parent, PycRef<ASTNode> child)
                 return 1;
             else
                 return -1;
+            // NOLINTEND(bugprone-branch-clone)
         } else if (parent.type() == ASTNode::NODE_COMPARE) {
             return (unChild->op() == ASTUnary::UN_NOT) ? 1 : -1;
         } else if (parent.type() == ASTNode::NODE_UNARY) {
@@ -2696,23 +2696,18 @@ static void print_ordered(PycRef<ASTNode> parent, PycRef<ASTNode> child,
                           PycModule* mod, std::ostream& pyc_output)
 {
     if (child.type() == ASTNode::NODE_BINARY ||
-        child.type() == ASTNode::NODE_COMPARE) {
+        child.type() == ASTNode::NODE_COMPARE ||
+        child.type() == ASTNode::NODE_UNARY) {
         if (cmp_prec(parent, child) > 0) {
             pyc_output << "(";
             print_src(child, mod, pyc_output);
             pyc_output << ")";
-        } else {
+        }
+        else {
             print_src(child, mod, pyc_output);
         }
-    } else if (child.type() == ASTNode::NODE_UNARY) {
-        if (cmp_prec(parent, child) > 0) {
-            pyc_output << "(";
-            print_src(child, mod, pyc_output);
-            pyc_output << ")";
-        } else {
-            print_src(child, mod, pyc_output);
-        }
-    } else {
+    }
+    else {
         print_src(child, mod, pyc_output);
     }
 }
@@ -2772,6 +2767,9 @@ void print_formatted_value(PycRef<ASTFormattedValue> formatted_value, PycModule*
         break;
     case ASTFormattedValue::ASCII:
         pyc_output << "!a";
+        break;
+    default:
+        // error case
         break;
     }
     if (formatted_value->conversion() & ASTFormattedValue::HAVE_FMT_SPEC) {
@@ -2849,7 +2847,6 @@ void print_src(PycRef<ASTNode> node, PycModule* mod, std::ostream& pyc_output)
                     pyc_output << ", ";
                 pyc_output << "**";
                 print_src(call->kw(), mod, pyc_output);
-                first = false;
             }
             pyc_output << ")";
         }

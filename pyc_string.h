@@ -1,5 +1,5 @@
-#ifndef _PYC_STRING_H
-#define _PYC_STRING_H
+#ifndef PYC_STRING_H
+#define PYC_STRING_H
 
 #include "pyc_object.h"
 #include "data.h"

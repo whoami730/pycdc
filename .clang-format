@@ -1,0 +1,35 @@
+BasedOnStyle: LLVM
+
+IndentWidth: 4
+
+BreakAfterReturnType: ExceptShortType
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterCaseLabel: true
+  AfterFunction: true
+  AfterClass: false
+  AfterControlStatement: false
+  AfterEnum: false
+  AfterNamespace: false
+  BeforeElse: true
+  IndentBraces: false
+
+# Don’t reflow or wrap lines
+ColumnLimit: 0
+
+# Leave initializer lists alone
+Cpp11BracedListStyle: False
+
+AllowShortCaseExpressionOnASingleLine: true
+AllowShortIfStatementsOnASingleLine: WithoutElse
+
+# Switch/case
+IndentCaseLabels: true
+IndentCaseBlocks: true
+
+IndentPPDirectives: BeforeHash
+
+PointerAlignment: Left
+
+SortIncludes: false
+SpaceInEmptyBlock: true

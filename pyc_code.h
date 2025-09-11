@@ -1,5 +1,5 @@
-#ifndef _PYC_CODE_H
-#define _PYC_CODE_H
+#ifndef PYC_CODE_H
+#define PYC_CODE_H
 
 #include "pyc_sequence.h"
 #include "pyc_string.h"

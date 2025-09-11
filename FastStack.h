@@ -1,5 +1,5 @@
-#ifndef _PYC_FASTSTACK_H
-#define _PYC_FASTSTACK_H
+#ifndef PYC_FASTSTACK_H
+#define PYC_FASTSTACK_H
 
 #include "ASTNode.h"
 #include <stack>

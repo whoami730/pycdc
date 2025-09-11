@@ -1,5 +1,5 @@
-#ifndef _PYC_NUMERIC_H
-#define _PYC_NUMERIC_H
+#ifndef PYC_NUMERIC_H
+#define PYC_NUMERIC_H
 
 #include "pyc_object.h"
 #include "data.h"

@@ -129,7 +129,7 @@ PycRef<PycString> PycCode::getCellVar(PycModule* mod, int idx) const
         : m_cellVars->get(idx).cast<PycString>();
 }
 
-int _parse_varint(PycBuffer& data, int& pos) {
+int parse_varint(PycBuffer& data, int& pos) {
     int b = data.getByte();
     pos += 1;
 
@@ -154,12 +154,12 @@ std::vector<PycExceptionTableEntry> PycCode::exceptionTableEntries() const
     int pos = 0;
     while (!data.atEof()) {
 
-        int start = _parse_varint(data, pos) * 2;
-        int length = _parse_varint(data, pos) * 2;
+        int start = parse_varint(data, pos) * 2;
+        int length = parse_varint(data, pos) * 2;
         int end = start + length;
         
-        int target = _parse_varint(data, pos) * 2;
-        int dl = _parse_varint(data, pos);
+        int target = parse_varint(data, pos) * 2;
+        int dl = parse_varint(data, pos);
 
         int depth = dl >> 1;
         bool lasti = bool(dl & 1);

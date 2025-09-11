@@ -1,5 +1,5 @@
-#ifndef _PYC_ASTNODE_H
-#define _PYC_ASTNODE_H
+#ifndef PYC_ASTNODE_H
+#define PYC_ASTNODE_H
 
 #include "pyc_module.h"
 #include <list>

@@ -1,26 +1,26 @@
-#ifndef _PYC_OBJECT_H
-#define _PYC_OBJECT_H
+#ifndef PYC_OBJECT_H
+#define PYC_OBJECT_H
 
 #include <typeinfo>
 
-template <class _Obj>
+template <class Obj>
 class PycRef {
 public:
     PycRef() noexcept : m_obj() { }
 
-    PycRef(_Obj* obj) noexcept : m_obj(obj)
+    PycRef(Obj* obj) noexcept : m_obj(obj)
     {
         if (m_obj)
             m_obj->addRef();
     }
 
-    PycRef(const PycRef<_Obj>& obj) noexcept : m_obj(obj.m_obj)
+    PycRef(const PycRef<Obj>& obj) noexcept : m_obj(obj.m_obj)
     {
         if (m_obj)
             m_obj->addRef();
     }
 
-    PycRef(PycRef<_Obj>&& obj) noexcept : m_obj(obj.m_obj)
+    PycRef(PycRef<Obj>&& obj) noexcept : m_obj(obj.m_obj)
     {
         obj.m_obj = nullptr;
     }
@@ -31,7 +31,7 @@ public:
             m_obj->delRef();
     }
 
-    PycRef<_Obj>& operator=(_Obj* obj)
+    PycRef<Obj>& operator=(Obj* obj)
     {
         if (obj)
             obj->addRef();
@@ -41,8 +41,12 @@ public:
         return *this;
     }
 
-    PycRef<_Obj>& operator=(const PycRef<_Obj>& obj)
+    PycRef<Obj>& operator=(const PycRef<Obj>& obj)
     {
+        if (this == &obj) {
+            return *this;
+        }
+
         if (obj.m_obj)
             obj.m_obj->addRef();
         if (m_obj)
@@ -51,40 +55,44 @@ public:
         return *this;
     }
 
-    PycRef<_Obj>& operator=(PycRef<_Obj>&& obj) noexcept
+    PycRef<Obj>& operator=(PycRef<Obj>&& obj) noexcept
     {
+        if (this == &obj) {
+            return *this;
+        }
+
         m_obj = obj.m_obj;
         obj.m_obj = nullptr;
         return *this;
     }
 
-    bool operator==(_Obj* obj) const { return m_obj == obj; }
-    bool operator==(const PycRef<_Obj>& obj) const { return m_obj == obj.m_obj; }
-    bool operator!=(_Obj* obj) const { return m_obj != obj; }
-    bool operator!=(const PycRef<_Obj>& obj) const { return m_obj != obj.m_obj; }
+    bool operator==(Obj* obj) const { return m_obj == obj; }
+    bool operator==(const PycRef<Obj>& obj) const { return m_obj == obj.m_obj; }
+    bool operator!=(Obj* obj) const { return m_obj != obj; }
+    bool operator!=(const PycRef<Obj>& obj) const { return m_obj != obj.m_obj; }
 
-    _Obj& operator*() const { return *m_obj; }
-    _Obj* operator->() const { return m_obj; }
-    operator _Obj*() const { return m_obj; }
+    Obj& operator*() const { return *m_obj; }
+    Obj* operator->() const { return m_obj; }
+    operator Obj*() const { return m_obj; }
 
     inline int type() const;
 
-    template <class _Cast>
-    PycRef<_Cast> try_cast() const { return dynamic_cast<_Cast*>(m_obj); }
+    template <class Cast>
+    PycRef<Cast> try_cast() const { return dynamic_cast<Cast*>(m_obj); }
 
-    template <class _Cast>
-    PycRef<_Cast> cast() const
+    template <class Cast>
+    PycRef<Cast> cast() const
     {
-        _Cast* result = dynamic_cast<_Cast*>(m_obj);
+        Cast* result = dynamic_cast<Cast*>(m_obj);
         if (!result)
             throw std::bad_cast();
         return result;
     }
 
-    bool isIdent(const _Obj* obj) const { return m_obj == obj; }
+    bool isIdent(const Obj* obj) const { return m_obj == obj; }
 
 private:
-    _Obj* m_obj;
+    Obj* m_obj;
 };
 
 
@@ -152,8 +160,8 @@ public:
     void delRef() { if (--m_refs == 0) delete this; }
 };
 
-template <class _Obj>
-int PycRef<_Obj>::type() const
+template <class Obj>
+int PycRef<Obj>::type() const
 {
     return m_obj ? m_obj->type() : PycObject::TYPE_NULL;
 }

@@ -66,12 +66,12 @@ std::string PycLong::repr(PycModule* mod) const
     bits.reserve((m_value.size() + 1) / 2);
     int shift = 0, temp = 0;
     for (auto bit : m_value) {
-        temp |= unsigned(bit & 0xFFFF) << shift;
+        temp |= static_cast<int>(unsigned(bit & 0xFFFF) << shift);
         shift += 15;
         if (shift >= 32) {
             bits.push_back(temp);
             shift -= 32;
-            temp = unsigned(bit & 0xFFFF) >> (15 - shift);
+            temp = static_cast<int>(unsigned(bit & 0xFFFF) >> (15 - shift));
         }
     }
     if (temp)

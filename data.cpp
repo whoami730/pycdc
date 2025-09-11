@@ -106,8 +106,11 @@ int formatted_printv(std::ostream& stream, const char* format, va_list args)
     va_list saved_args;
     va_copy(saved_args, args);
     int len = std::vsnprintf(nullptr, 0, format, args);
-    if (len < 0)
+    if (len < 0) {
+        va_end(saved_args);
         return len;
+    }
+
     std::vector<char> vec(static_cast<size_t>(len) + 1);
     int written = std::vsnprintf(&vec[0], vec.size(), format, saved_args);
     va_end(saved_args);
