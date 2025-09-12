@@ -1,6 +1,6 @@
 #include "data.h"
-#include <cstring>
 #include <cstdarg>
+#include <cstring>
 #include <vector>
 
 /* PycData */
@@ -16,7 +16,7 @@ int PycData::get32()
 {
     /* Ensure endianness */
     int result = getByte() & 0xFF;
-    result |= (getByte() & 0xFF) <<  8;
+    result |= (getByte() & 0xFF) << 8;
     result |= (getByte() & 0xFF) << 16;
     result |= (getByte() & 0xFF) << 24;
     return result;
@@ -26,7 +26,7 @@ Pyc_INT64 PycData::get64()
 {
     /* Ensure endianness */
     Pyc_INT64 result = (Pyc_INT64)(getByte() & 0xFF);
-    result |= (Pyc_INT64)(getByte() & 0xFF) <<  8;
+    result |= (Pyc_INT64)(getByte() & 0xFF) << 8;
     result |= (Pyc_INT64)(getByte() & 0xFF) << 16;
     result |= (Pyc_INT64)(getByte() & 0xFF) << 24;
     result |= (Pyc_INT64)(getByte() & 0xFF) << 32;
@@ -35,7 +35,6 @@ Pyc_INT64 PycData::get64()
     result |= (Pyc_INT64)(getByte() & 0xFF) << 56;
     return result;
 }
-
 
 /* PycFile */
 PycFile::PycFile(const char* filename)
@@ -67,7 +66,6 @@ void PycFile::getBuffer(int bytes, void* buffer)
         std::exit(1);
     }
 }
-
 
 /* PycBuffer */
 int PycBuffer::getByte()

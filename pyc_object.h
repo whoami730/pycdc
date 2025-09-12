@@ -3,8 +3,7 @@
 
 #include <typeinfo>
 
-template <class Obj>
-class PycRef {
+template <class Obj> class PycRef {
 public:
     PycRef() noexcept : m_obj() { }
 
@@ -77,11 +76,12 @@ public:
 
     inline int type() const;
 
-    template <class Cast>
-    PycRef<Cast> try_cast() const { return dynamic_cast<Cast*>(m_obj); }
+    template <class Cast> PycRef<Cast> try_cast() const
+    {
+        return dynamic_cast<Cast*>(m_obj);
+    }
 
-    template <class Cast>
-    PycRef<Cast> cast() const
+    template <class Cast> PycRef<Cast> cast() const
     {
         Cast* result = dynamic_cast<Cast*>(m_obj);
         if (!result)
@@ -94,7 +94,6 @@ public:
 private:
     Obj* m_obj;
 };
-
 
 class PycData;
 class PycModule;
@@ -157,11 +156,14 @@ protected:
 
 public:
     void addRef() { ++m_refs; }
-    void delRef() { if (--m_refs == 0) delete this; }
+    void delRef()
+    {
+        if (--m_refs == 0)
+            delete this;
+    }
 };
 
-template <class Obj>
-int PycRef<Obj>::type() const
+template <class Obj> int PycRef<Obj>::type() const
 {
     return m_obj ? m_obj->type() : PycObject::TYPE_NULL;
 }
