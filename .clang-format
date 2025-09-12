@@ -1,9 +1,15 @@
 BasedOnStyle: LLVM
-
-IndentWidth: 4
-
+AccessModifierOffset: -4
+AlignAfterOpenBracket: DontAlign
+AlignEscapedNewlines: LeftWithLastLine
+AlignTrailingComments: Leave
+AllowShortCaseExpressionOnASingleLine: false
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: Never
 BreakAfterReturnType: ExceptShortType
 BreakBeforeBraces: Custom
+BreakConstructorInitializers: AfterColon
+BreakStringLiterals: false
 BraceWrapping:
   AfterCaseLabel: true
   AfterFunction: true
@@ -13,23 +19,13 @@ BraceWrapping:
   AfterNamespace: false
   BeforeElse: true
   IndentBraces: false
-
-# Don’t reflow or wrap lines
-ColumnLimit: 0
-
-# Leave initializer lists alone
+ColumnLimit: 80
 Cpp11BracedListStyle: False
-
-AllowShortCaseExpressionOnASingleLine: true
-AllowShortIfStatementsOnASingleLine: WithoutElse
-
-# Switch/case
-IndentCaseLabels: true
+IndentCaseLabels: false
 IndentCaseBlocks: true
-
 IndentPPDirectives: BeforeHash
-
+IndentWidth: 4
 PointerAlignment: Left
-
-SortIncludes: false
+ReflowComments: IndentOnly
 SpaceInEmptyBlock: true
+SpacesBeforeTrailingComments: 3
