@@ -1811,6 +1811,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
             stack.push(new ASTName(code->getCellVar(mod, operand)));
             break;
         case Pyc::LOAD_FAST_A:
+        case Pyc::LOAD_FAST_CHECK_A:
             if (mod->verCompare(1, 3) < 0)
                 stack.push(new ASTName(code->getName(operand)));
             else
@@ -3005,7 +3006,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                 } else {
                     // In exception handling, COPY might reference items that don't exist
                     // in our decompiled stack representation. Push a placeholder.
-                    #ifdef BLOCK_DEBUG
+                    #ifdef STACK_DEBUG
                     fprintf(stderr, "Warning: COPY_A operand %d failed to get value from stack\n", operand);
                     #endif
                     // For exception handling context, we use a None placeholder
@@ -3105,6 +3106,29 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                 curblock->append(new ASTRaise(ASTRaise::param_t()));
             }
             break;
+        case Pyc::CALL_INTRINSIC_1_A:
+            {
+                PycRef<ASTNode> arg = stack.top();
+                stack.pop();
+
+                if (operand != ASTCallIntrinsic1::INTRINSIC_LIST_TO_TUPLE) {
+                    fprintf(stderr, "Unimplemented function %i", operand);
+                    break;
+                }
+
+                if (arg.type() != ASTNode::NODE_LIST) {
+                    fprintf(stderr, "Unexpected argument type %i\n", arg.type());
+                    break;
+                }
+
+                PycRef<ASTList> list = arg.cast<ASTList>();
+                ASTTuple::value_t values;
+                for (PycRef<ASTNode> val : list->values()) {
+                    values.push_back(val);
+                }
+                stack.push(new ASTTuple(values));
+            }
+            break;
         default:
             fprintf(stderr, "Unsupported opcode: %s (%d)\n", Pyc::OpcodeName(opcode), opcode);
             cleanBuild = false;
@@ -3118,7 +3142,7 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
     }
 
     if (stack_hist.size()) {
-        #ifdef BLOCK_DEBUG
+        #ifdef STACK_DEBUG
         fprintf(stderr, "Warning: Stack history is not empty (size=%zu)\n", stack_hist.size());
         #endif
         while (stack_hist.size()) {
